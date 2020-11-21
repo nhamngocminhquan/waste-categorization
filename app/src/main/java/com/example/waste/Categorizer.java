@@ -35,7 +35,7 @@ public class Categorizer {
         electronic,
         timber,
         textile,
-        compost,
+        organic,
         rubble;
 
         private final int value;

@@ -2,6 +2,7 @@
  *      This file was started before 11:00 20th November, but was not finished.
  *      Before the start time the Tensorflow Lite Interpreter was implemented, but it used a pre-trained model (EfficientNet)
  *      After, at 17:00 the categorization list was introduced to map the labels to the categories.
+ *      On 21st November the categorization visual was added
  * */
 
 package com.example.waste;
@@ -17,12 +18,14 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.tensorflow.lite.support.image.TensorImage;
@@ -32,6 +35,7 @@ import org.tensorflow.lite.task.vision.classifier.Classifications;
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier;
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier.ImageClassifierOptions;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     protected TextView objectConfidence1;
     protected TextView objectName2;
     protected TextView objectConfidence2;
+    protected TextView categoryName;
+    protected ImageView categoryIcon;
 
     //Camera stuff
     protected FrameLayout cameraStream;
@@ -83,9 +89,14 @@ public class MainActivity extends AppCompatActivity {
         categorizeButton = (Button) findViewById(R.id.button);
         buttonTest = (TextView) findViewById(R.id.textView);
         objectName1 = (TextView) findViewById(R.id.textView1);
-        objectConfidence1 = (TextView) findViewById((R.id.textView2));
+        objectConfidence1 = (TextView) findViewById(R.id.textView2);
         objectName2 = (TextView) findViewById(R.id.textView3);
-        objectConfidence2 = (TextView) findViewById((R.id.textView4));
+        objectConfidence2 = (TextView) findViewById(R.id.textView4);
+
+        categoryName = (TextView) findViewById(R.id.textView5);
+        categoryIcon = (ImageView) findViewById(R.id.imageView);
+        categoryName.setVisibility(View.INVISIBLE);
+        categoryIcon.setVisibility(View.INVISIBLE);
 
         cameraStream = (FrameLayout) findViewById(R.id.frameLayout);
         bumpHandler = new ImageHandling(this);
@@ -99,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
             cameraStream.post(new Runnable() {
                 @Override
                 public void run() {
-                    //mHeight = cameraStream.getMeasuredHeight();
-                    //mWidth = cameraStream.getMeasuredWidth();
                     setupCamera();
                 }
             });
@@ -157,12 +166,32 @@ public class MainActivity extends AppCompatActivity {
                     categorizeButton.setText("IDENTIFY");
                     isPreviewing = false;
                     Log.d(TAG, "Close camera");
+
+                    categoryName.setVisibility(View.VISIBLE);
+                    categoryIcon.setVisibility(View.VISIBLE);
+
+                    String label = null;
+                    try {
+                        label = categorizer.getCategory(categorizer.categorizedMap.get((String) objectName1.getText()));
+                        categoryName.setText(label);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Fail to get category: " + e.toString());
+                    }
+                    try {
+                        String generatedFileName = label;// + ".png";
+                        categoryIcon.setImageResource(getResources().getIdentifier(label, "drawable", getPackageName()));
+                    } catch (Exception e) {
+                        Log.e(TAG, "Fail to get .svg: " + e.toString());
+                    }
                 }
                 else {
                     setupCamera();
                     buttonTest.setText("Camera started");
                     categorizeButton.setText("CATEGORIZE");
                     isPreviewing = true;
+
+                    categoryName.setVisibility(View.INVISIBLE);
+                    categoryIcon.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -331,21 +360,21 @@ public class MainActivity extends AppCompatActivity {
 
         String label = labeledObjects.get(0).label;
         objectName1.setText(label);
-        //objectConfidence1.setText(Float.toString((float) labeledObjects.get(0).score * 100) + "%");
-        try {
+        objectConfidence1.setText(Float.toString((float) labeledObjects.get(0).score * 100) + "%");
+        /*try {
             objectConfidence1.setText(categorizer.getCategory(categorizer.categorizedMap.get(label)));
         } catch (Exception e) {
             Log.e(TAG, "Fail to get category: " + e.toString());
-        }
+        }*/
 
         label = labeledObjects.get(1).label;
         objectName2.setText(label);
-        //objectConfidence2.setText(Float.toString((float) labeledObjects.get(1).score * 100) + "%");
-        try {
+        objectConfidence2.setText(Float.toString((float) labeledObjects.get(1).score * 100) + "%");
+        /*try {
             objectConfidence2.setText(categorizer.getCategory(categorizer.categorizedMap.get(label)));
         } catch (Exception e) {
             Log.e(TAG, "Fail to get category: " + e.toString());
-        }
+        }*/
     }
 
     private int sgn(float x) {

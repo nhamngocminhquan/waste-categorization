@@ -61,8 +61,10 @@ public class MainActivity extends AppCompatActivity {
     protected TextView objectConfidence1;
     protected TextView objectName2;
     protected TextView objectConfidence2;
+
     protected TextView categoryName;
     protected ImageView categoryIcon;
+    protected TextView wasteName;
 
     //Camera stuff
     protected FrameLayout cameraStream;
@@ -94,8 +96,10 @@ public class MainActivity extends AppCompatActivity {
         objectConfidence2 = (TextView) findViewById(R.id.textView4);
 
         categoryName = (TextView) findViewById(R.id.textView5);
+        wasteName = (TextView) findViewById(R.id.textView6);
         categoryIcon = (ImageView) findViewById(R.id.imageView);
         categoryName.setVisibility(View.INVISIBLE);
+        wasteName.setVisibility(View.INVISIBLE);
         categoryIcon.setVisibility(View.INVISIBLE);
 
         cameraStream = (FrameLayout) findViewById(R.id.frameLayout);
@@ -169,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
                     categoryName.setVisibility(View.VISIBLE);
                     categoryIcon.setVisibility(View.VISIBLE);
+                    wasteName.setVisibility(View.VISIBLE);
 
                     String label = null;
                     try {
@@ -191,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     isPreviewing = true;
 
                     categoryName.setVisibility(View.INVISIBLE);
+                    wasteName.setVisibility(View.INVISIBLE);
                     categoryIcon.setVisibility(View.INVISIBLE);
                 }
             }
